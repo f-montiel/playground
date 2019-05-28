@@ -1834,17 +1834,18 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['jobs'],
   data: function data() {
     return {};
   },
   methods: {
-    delteJob: function delteJob(index) {
-      this.$emit('delete-job', index);
+    delteJob: function delteJob(index, job) {
+      this.$emit('delete-job', index, job);
     },
-    changeJobStatus: function changeJobStatus(index) {
-      this.$emit('change-job-status', index);
+    changeJobStatus: function changeJobStatus(index, job) {
+      this.$emit('change-job-status', index, job);
     }
   }
 });
@@ -1876,25 +1877,51 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
+    //tiene una desventaja, cuando agrego espera a que el servidor responda y despues agrega el item.
+    // pero si no lo hago asi, cuando lo agrego no tiene id y no lo puedo actualizar.
     createJob: function createJob(job) {
-      this.jobs.push({
-        name: job,
-        completed: false
+      var _this = this;
+
+      axios.post('/list', {
+        name: job
+      }).then(function (response) {
+        return _this.jobs.push(response.data);
       });
     },
-    deleteJob: function deleteJob(index) {
+    deleteJob: function deleteJob(index, job) {
+      //no estoy seguro de que esto este prolijo
       this.jobs.splice(index, 1);
+      axios["delete"]('/list/' + job.id);
     },
-    changeJobStatus: function changeJobStatus(index) {
-      this.jobs[index].completed = !this.jobs[index].completed;
+    changeJobStatus: function changeJobStatus(index, job) {
+      var status = '';
+
+      if (this.jobs[index].done == 0) {
+        status = 1;
+      } else {
+        status = 0;
+      }
+
+      this.jobs[index].done = status;
+      axios.put('updatejob', {
+        id: job.id,
+        done: status
+      });
     }
   },
   computed: {
     CompletedJobs: function CompletedJobs() {
       return this.jobs.filter(function (jobs) {
-        return jobs.completed == true;
+        return jobs.done == 1;
       }).length;
     }
+  },
+  mounted: function mounted() {
+    var _this2 = this;
+
+    axios.get('/list').then(function (response) {
+      return _this2.jobs = response.data;
+    });
   }
 });
 
@@ -37213,7 +37240,7 @@ var render = function() {
           }
         ],
         staticClass: "form-control col col-md-6",
-        attrs: { type: "text", name: "job", autofocus: "" },
+        attrs: { type: "text", name: "job" },
         domProps: { value: _vm.job },
         on: {
           input: function($event) {
@@ -37295,63 +37322,42 @@ var render = function() {
       _vm._l(_vm.jobs, function(job, index) {
         return _c(
           "li",
-          { staticClass: "list-group-item", class: { active: job.completed } },
+          { staticClass: "list-group-item", class: { active: job.done == 1 } },
           [
-            _c("input", {
-              directives: [
-                {
-                  name: "model",
-                  rawName: "v-model",
-                  value: job.index,
-                  expression: "job.index"
-                }
-              ],
-              staticClass: "form-check-input",
-              attrs: { type: "checkbox" },
-              domProps: {
-                checked: Array.isArray(job.index)
-                  ? _vm._i(job.index, null) > -1
-                  : job.index
-              },
-              on: {
-                click: function($event) {
-                  return _vm.changeJobStatus(index)
-                },
-                change: function($event) {
-                  var $$a = job.index,
-                    $$el = $event.target,
-                    $$c = $$el.checked ? true : false
-                  if (Array.isArray($$a)) {
-                    var $$v = null,
-                      $$i = _vm._i($$a, $$v)
-                    if ($$el.checked) {
-                      $$i < 0 && _vm.$set(job, "index", $$a.concat([$$v]))
-                    } else {
-                      $$i > -1 &&
-                        _vm.$set(
-                          job,
-                          "index",
-                          $$a.slice(0, $$i).concat($$a.slice($$i + 1))
-                        )
-                    }
-                  } else {
-                    _vm.$set(job, "index", $$c)
-                  }
-                }
-              }
-            }),
-            _vm._v("\n            " + _vm._s(job.name) + "\n            "),
             _c(
-              "button",
+              "a",
               {
-                staticClass: "btn btn-sm btn-danger float-right",
                 on: {
                   click: function($event) {
-                    return _vm.delteJob(index)
+                    return _vm.changeJobStatus(index, job)
+                  }
+                },
+                model: {
+                  value: job.index,
+                  callback: function($$v) {
+                    _vm.$set(job, "index", $$v)
+                  },
+                  expression: "job.index"
+                }
+              },
+              [
+                _vm._v(
+                  "\n                " + _vm._s(job.name) + "\n            "
+                )
+              ]
+            ),
+            _vm._v(" "),
+            _c(
+              "i",
+              {
+                staticClass: "material-icons float-right",
+                on: {
+                  click: function($event) {
+                    return _vm.delteJob(index, job)
                   }
                 }
               },
-              [_vm._v("\n                Borrar\n            ")]
+              [_vm._v("\n                delete\n            ")]
             )
           ]
         )
@@ -49654,15 +49660,14 @@ if (token) {
 /*!*********************************************************!*\
   !*** ./resources/js/components/CustomFormComponent.vue ***!
   \*********************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CustomFormComponent_vue_vue_type_template_id_be2ccae6___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./CustomFormComponent.vue?vue&type=template&id=be2ccae6& */ "./resources/js/components/CustomFormComponent.vue?vue&type=template&id=be2ccae6&");
 /* harmony import */ var _CustomFormComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./CustomFormComponent.vue?vue&type=script&lang=js& */ "./resources/js/components/CustomFormComponent.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _CustomFormComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _CustomFormComponent_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -49692,7 +49697,7 @@ component.options.__file = "resources/js/components/CustomFormComponent.vue"
 /*!**********************************************************************************!*\
   !*** ./resources/js/components/CustomFormComponent.vue?vue&type=script&lang=js& ***!
   \**********************************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

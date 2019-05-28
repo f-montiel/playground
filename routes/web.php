@@ -14,9 +14,13 @@
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('list', function () {
-    return view('list');
+Route::get('joblist', function () {
+    return view('joblist');
 });
+Route::resource('list', 'JobController');
 Auth::routes();
-
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::put('updatejob', 'JobController@update');
+
+

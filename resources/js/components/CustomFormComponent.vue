@@ -2,7 +2,7 @@
 	<div>
 		<div class="form-group">
 			<label>Tarea</label>
-			<input type="text" name="job" v-model='job' autofocus class="form-control col col-md-6">
+			<input type="text" name="job" v-model='job' class="form-control col col-md-6">
 		</div>
 		<div class="form-group">
 			<button class="btn btn-primary" @click="create(job)">Agregar</button>
