@@ -5,9 +5,7 @@
                 <a @click="changeJobStatus(index, job)" v-model="job.index">
                     {{ job.name }}
                 </a>
-                <i class="material-icons float-right" @click="delteJob(index, job)">
-                    delete
-                </i>
+                <button class="btn btn-sm btn-danger float-right" @click = "deleteJob(index, job)" >Borrar</button>
             </li>
         </ul>
     </div>
@@ -22,7 +20,7 @@
         }
     },
     methods: {
-            delteJob(index, job) {
+            deleteJob(index, job) {
                 this.$emit('delete-job', index, job);
             },
             changeJobStatus(index, job) {

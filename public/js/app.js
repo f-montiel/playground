@@ -1782,10 +1782,6 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     create: function create(job) {
-      if (!job) {
-        return alert('Debe ingresar una tarea');
-      }
-
       this.$emit('create-job', job);
       this.job = '';
     }
@@ -1833,15 +1829,13 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['jobs'],
   data: function data() {
     return {};
   },
   methods: {
-    delteJob: function delteJob(index, job) {
+    deleteJob: function deleteJob(index, job) {
       this.$emit('delete-job', index, job);
     },
     changeJobStatus: function changeJobStatus(index, job) {
@@ -1877,34 +1871,23 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   methods: {
-    //tiene una desventaja, cuando agrego espera a que el servidor responda y despues agrega el item.
-    // pero si no lo hago asi, cuando lo agrego no tiene id y no lo puedo actualizar.
     createJob: function createJob(job) {
       var _this = this;
 
-      axios.post('/list', {
+      axios.post('/api/list', {
         name: job
       }).then(function (response) {
         return _this.jobs.push(response.data);
       });
     },
     deleteJob: function deleteJob(index, job) {
-      //no estoy seguro de que esto este prolijo
       this.jobs.splice(index, 1);
-      axios["delete"]('/list/' + job.id);
+      axios["delete"]('/api/list/' + job.id);
     },
     changeJobStatus: function changeJobStatus(index, job) {
-      var status = '';
-
-      if (this.jobs[index].done == 0) {
-        status = 1;
-      } else {
-        status = 0;
-      }
-
+      var status = !this.jobs[index].done;
       this.jobs[index].done = status;
-      axios.put('updatejob', {
-        id: job.id,
+      axios.patch('/api/list/' + job.id, {
         done: status
       });
     }
@@ -1919,7 +1902,7 @@ __webpack_require__.r(__webpack_exports__);
   mounted: function mounted() {
     var _this2 = this;
 
-    axios.get('/list').then(function (response) {
+    axios.get('/api/list').then(function (response) {
       return _this2.jobs = response.data;
     });
   }
@@ -37348,16 +37331,16 @@ var render = function() {
             ),
             _vm._v(" "),
             _c(
-              "i",
+              "button",
               {
-                staticClass: "material-icons float-right",
+                staticClass: "btn btn-sm btn-danger float-right",
                 on: {
                   click: function($event) {
-                    return _vm.delteJob(index, job)
+                    return _vm.deleteJob(index, job)
                   }
                 }
               },
-              [_vm._v("\n                delete\n            ")]
+              [_vm._v("Borrar")]
             )
           ]
         )

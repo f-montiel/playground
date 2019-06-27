@@ -1,12 +1,22 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
-use Illuminate\Http\Request;
 use App\Job;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use App\Repositories\Job\IJobRepository;
 
-class JobController extends Controller
+
+class jobController extends Controller
 {
+
+    protected $jobRepo;
+    
+    function __construct(IJobRepository $IJobRepository)
+    {
+        $this->jobRepo = $IJobRepository;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -14,7 +24,9 @@ class JobController extends Controller
      */
     public function index()
     {
-        return view('job.index');
+        $jobs = $this->jobRepo->get();
+
+        return $jobs;
     }
 
     /**
@@ -35,7 +47,8 @@ class JobController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $job = $this->jobRepo->store($request);
+        return $job;
     }
 
     /**
@@ -69,7 +82,9 @@ class JobController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $job = $this->jobRepo->update($request, $id);
+
+        return $job;
     }
 
     /**
@@ -80,6 +95,6 @@ class JobController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $this->jobRepo->destroy($id);
     }
 }

@@ -18,9 +18,6 @@
 		},
 		methods: {
 			create(job){
-				if(!job) {
-					return alert('Debe ingresar una tarea');
-				}
 				this.$emit('create-job', job);
 				this.job = '';
 			}
